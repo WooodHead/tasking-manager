@@ -35,7 +35,6 @@ from backend.models.postgis.utils import (
 )
 from backend.models.postgis.interests import project_interests
 from backend.services.users.user_service import UserService
-from backend.services.organisation_service import OrganisationService
 
 
 search_cache = TTLCache(maxsize=128, ttl=300)
@@ -91,9 +90,15 @@ class ProjectSearchService:
         if user is None:
             query = query.filter(Project.private.is_(False))
 
-        # Get also private projects of teams that the user is member.
         if user is not None and user.role != UserRole.ADMIN.value:
+            # Get also private projects of teams that the user is member.
             project_ids = [[p.project_id for p in t.team.projects] for t in user.teams]
+
+            # Get projects that belong to user organizations.
+            orgs_projects_ids = [[p.id for p in u.projects] for u in user.organisations]
+
+            project_ids.extend(orgs_projects_ids)
+
             project_ids = tuple(
                 set([item for sublist in project_ids for item in sublist])
             )
@@ -292,16 +297,13 @@ class ProjectSearchService:
         query = query.order_by(order_by).group_by(Project.id)
 
         if search_dto.managed_by and user.role != UserRole.ADMIN.value:
-            team_projects = query.join(ProjectTeams).filter(
-                ProjectTeams.role == TeamRoles.PROJECT_MANAGER.value,
-                ProjectTeams.project_id == Project.id,
+            # Get all the projects associated with the user and team.
+            user_teams_ids = [u.team_id for u in user.teams]
+            query = (
+                query.filter(ProjectTeams.project_id == Project.id)
+                .filter(ProjectTeams.role == TeamRoles.PROJECT_MANAGER.value)
+                .filter(ProjectTeams.team_id.in_(user_teams_ids))
             )
-            user_orgs_list = OrganisationService.get_organisations_managed_by_user(
-                search_dto.managed_by
-            )
-            orgs_managed = [org.id for org in user_orgs_list]
-            org_projects = query.filter(Project.organisation_id.in_(orgs_managed))
-            query = org_projects.union(team_projects)
 
         all_results = query.all()
         paginated_results = query.paginate(search_dto.page, 14, True)

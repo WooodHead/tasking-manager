@@ -98,7 +98,11 @@ export const ProjectNav = (props) => {
             >
               <FormattedMessage {...messages.filters} />
             </Link>
-            <OrderBySelector setQuery={setQuery} allQueryParams={fullProjectsQuery} />
+            <OrderBySelector
+              setQuery={setQuery}
+              allQueryParams={fullProjectsQuery}
+              className="f6"
+            />
             {!filterIsEmpty && (
               <Link to="./" className="red link ph3 f6 pv2 mv2 mh1 fr dn dib-l">
                 <FormattedMessage {...messages.clearFilters} />

@@ -58,7 +58,7 @@ const SocialMedia = ({ data }) => {
   };
 
   return (
-    <ul className="list pa0">
+    <ul className="list pa0 ma0">
       <li className="dib mr4-ns mr2 cf f7">
         <div className="mr2 h2">
           <img className="h1 v-mid" src={OsmLogo} alt="OpenStreetMap" />{' '}
@@ -100,6 +100,30 @@ const MyContributionsNav = ({ username, authUser }) => {
   );
 };
 
+const Organisations = ({ orgs }) => {
+  if (!orgs) {
+    return null;
+  }
+
+  const imgStyle = { width: '3rem', height: '3rem', display: 'inline-block' };
+  const image = (org) => {
+    if (org.logo === null) {
+      return <div title={org.name} style={imgStyle} className="cf bg-grey-light"></div>;
+    }
+
+    return <img alt={org.name} title={org.name} src={org.logo} style={imgStyle} />;
+  };
+
+  return (
+    <div>
+      <p className="barlow-condensed f4 b mv1">
+        <FormattedMessage {...messages.organisations} />
+      </p>
+      {orgs.map((o) => image(o))}
+    </div>
+  );
+};
+
 export const HeaderProfile = ({ userDetails, changesets, selfProfile }) => {
   const authDetails = useSelector((state) => state.auth.get('userDetails'));
   const [user, setUser] = useState({});
@@ -130,16 +154,19 @@ export const HeaderProfile = ({ userDetails, changesets, selfProfile }) => {
             <ProfilePictureIcon className="red" />
           )}
         </div>
-        <div className="pl2 dib">
-          <div className="mb4">
-            <p className="barlow-condensed f2 ttu b ma0 mb2">{user.name || user.username}</p>
-            <p className="f4 ma0 mb2">
-              <MappingLevelMessage level={user.mappingLevel} />
-            </p>
-            <NextMappingLevel changesetsCount={changesets} />
+        <div className="w-60 fl">
+          <div className="pl2 dib w-100">
+            <div className="mb3">
+              <p className="barlow-condensed f2 ttu b ma0 mb2">{user.name || user.username}</p>
+              <p className="f4 ma0 mb2">
+                <MappingLevelMessage level={user.mappingLevel} />
+              </p>
+              <NextMappingLevel changesetsCount={changesets} />
+            </div>
+            <SocialMedia data={user} />
           </div>
-          <SocialMedia data={user} />
         </div>
+        <Organisations orgs={user.organisations} />
       </div>
       {user.username === authDetails.username && <MyContributionsNav username={user.username} />}
     </>

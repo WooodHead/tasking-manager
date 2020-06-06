@@ -12,6 +12,8 @@ from schematics.types.compound import ListType, ModelType, BaseType
 from backend.models.dtos.stats_dto import Pagination
 from backend.models.dtos.mapping_dto import TaskDTO
 from backend.models.dtos.interests_dto import InterestDTO
+from backend.models.dtos.organisation_dto import OrganisationDTO
+from backend.models.dtos.team_dto import TeamDTO
 from backend.models.postgis.statuses import MappingLevel, UserRole
 
 
@@ -77,6 +79,8 @@ class UserDTO(Model):
     mentions_notifications = BooleanType(serialized_name="mentionsNotifications")
     comments_notifications = BooleanType(serialized_name="commentsNotifications")
     projects_notifications = BooleanType(serialized_name="projectsNotifications")
+    organisations = ListType(ModelType(OrganisationDTO))
+    teams = ListType(ModelType(TeamDTO))
 
     # these are read only
     missing_maps_profile = StringType(serialized_name="missingMapsProfile")

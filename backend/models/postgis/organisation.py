@@ -154,13 +154,17 @@ class Organisation(db.Model):
         )
         return query_results
 
-    def as_dto(self):
+    def as_dto(self, members=True):
         """ Returns a dto for an organisation """
         organisation_dto = OrganisationDTO()
         organisation_dto.organisation_id = self.id
         organisation_dto.name = self.name
         organisation_dto.logo = self.logo
         organisation_dto.url = self.url
+
+        if members is False:
+            return organisation_dto
+
         organisation_dto.managers = []
         for manager in self.managers:
             org_manager_dto = OrganisationManagerDTO()

@@ -31,12 +31,14 @@ class OrganisationDTO(Model):
     """ Describes JSON model for an organisation """
 
     organisation_id = IntType(serialized_name="organisationId")
-    managers = ListType(ModelType(OrganisationManagerDTO), min_size=1, required=True)
+    managers = ListType(
+        ModelType(OrganisationManagerDTO), min_size=1, serialize_when_none=False
+    )
     name = StringType(required=True)
     logo = StringType()
     url = StringType()
-    is_manager = BooleanType(serialized_name="isManager")
-    projects = ListType(StringType)
+    is_manager = BooleanType(serialized_name="isManager", serialize_when_none=False)
+    projects = ListType(StringType, serialize_when_none=False)
     teams = ListType(ModelType(OrganisationTeamsDTO))
     campaigns = ListType(ListType(StringType))
 

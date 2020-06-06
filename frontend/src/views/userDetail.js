@@ -6,6 +6,7 @@ import ReactPlaceholder from 'react-placeholder';
 
 import messages from '../components/userDetail/messages';
 import { HeaderProfile } from '../components/userDetail/headerProfile';
+import { UserTeams } from '../components/userDetail/userTeams';
 import { ElementsMapped } from '../components/userDetail/elementsMapped';
 import { CountriesMapped } from '../components/userDetail/countriesMapped';
 import { TopCauses } from '../components/userDetail/topCauses';
@@ -77,6 +78,19 @@ export const UserDetail = ({ username, withHeader = true }) => {
             ready={!errorStats && !loadingStats}
           >
             <ContributionTimeline userStats={userStats} />
+          </ReactPlaceholder>
+        </div>
+        <div className="mv4">
+          <h3 className={titleClass}>
+            <FormattedMessage {...messages.teams} />
+          </h3>
+          <ReactPlaceholder
+            type="rect"
+            showLoadingAnimation={true}
+            style={{ height: '10em' }}
+            ready={!errorStats && !loadingStats}
+          >
+            <UserTeams teams={userDetails.teams} />
           </ReactPlaceholder>
         </div>
         <div className="mv4">

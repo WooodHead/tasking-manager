@@ -19,6 +19,7 @@ from backend.models.postgis.statuses import (
     ProjectStatus,
     UserRole,
     UserGender,
+    TeamVisibility,
 )
 from backend.models.postgis.utils import NotFound, timestamp
 from backend.models.postgis.interests import Interest, user_interests
@@ -351,6 +352,26 @@ class User(db.Model):
             # Only return email address when logged in user is looking at their own profile
             user_dto.email_address = self.email_address
             user_dto.is_email_verified = self.is_email_verified
+
+        organisations = [o.as_dto(members=False) for o in self.organisations]
+        user_dto.organisations = organisations
+
+        user_teams = [t.team for t in self.teams]
+
+        if self.username != logged_in_username:
+            logged_user = User.query.filter(User.username == logged_in_username).one()
+            logged_user_teams = [t.team.id for t in logged_user.teams]
+
+            # Remove all private teams that the logged user is not member.
+            user_teams = [
+                t
+                for t in user_teams
+                if t.id in logged_user_teams
+                or t.visibility == TeamVisibility.PUBLIC.value
+            ]
+
+        user_dto.teams = [t.as_dto() for t in user_teams]
+
         return user_dto
 
     def create_or_update_interests(self, interests_ids):

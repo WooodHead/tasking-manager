@@ -1,5 +1,5 @@
 from backend import db
-from backend.models.dtos.team_dto import TeamDTO, NewTeamDTO
+from backend.models.dtos.team_dto import TeamDTO, NewTeamDTO, TeamMembersDTO
 from backend.models.dtos.organisation_dto import OrganisationTeamsDTO
 from backend.models.postgis.organisation import Organisation
 from backend.models.postgis.statuses import TeamVisibility, TeamMemberFunctions
@@ -159,7 +159,19 @@ class Team(db.Model):
         team_dto.team_id = self.id
         team_dto.description = self.description
         team_dto.invite_only = self.invite_only
-        team_dto.members = self._get_team_members()
+
+        team_dto.members = []
+        for member in self.members:
+            user = User.query.get(member.user_id)
+            member_dto = TeamMembersDTO()
+            member_dto.username = user.username
+            member_dto.pictureUrl = user.picture_url
+            member_dto.function = TeamMemberFunctions(member.function).name
+            member_dto.picture_url = user.picture_url
+            member_dto.active = member.active
+
+            team_dto.members.append(member_dto)
+
         team_dto.name = self.name
         team_dto.organisation = self.organisation.name
         team_dto.organisation_id = self.organisation.id
